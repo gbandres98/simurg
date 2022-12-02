@@ -6,6 +6,9 @@ import (
 	"path"
 
 	"github.com/signintech/gopdf"
+
+	"image"
+	_ "image/jpeg"
 )
 
 func GeneratePdfs(pdfDir string, tempDir string) {
@@ -33,8 +36,23 @@ func joinImages(dir string, file string) {
 	pdf.Start(gopdf.Config{PageSize: *gopdf.PageSizeA4})
 
 	for _, f := range files {
-		pdf.AddPage()
-		pdf.Image(path.Join(dir, f.Name()), 0, 0, gopdf.PageSizeA4)
+		imgPath := path.Join(dir, f.Name())
+		r, err := os.Open(imgPath)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		i, _, err := image.Decode(r)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		pageSize := &gopdf.Rect{W: float64(i.Bounds().Dx()), H: float64(i.Bounds().Dy())}
+
+		pdf.AddPageWithOption(gopdf.PageOption{PageSize: pageSize})
+		pdf.Image(imgPath, 0, 0, pageSize)
 	}
 
 	err = pdf.WritePdf(file)

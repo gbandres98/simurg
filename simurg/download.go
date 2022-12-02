@@ -40,7 +40,7 @@ func DownloadImages(file string, dir string) {
 	}
 
 	wg.Wait()
-	log.Printf("Descargadas %d imágenes", downloaded)
+	log.Printf("Descargadas %d imagenes", downloaded)
 }
 
 func readLines(path string) (lines []string, err error) {
